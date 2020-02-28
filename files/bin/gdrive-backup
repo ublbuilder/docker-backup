@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+set -u
+
+if [ "${GDRIVE_TOKEN:-}" = "" ]; then
+    echo "Variable 'GDRIVE_TOKEN' is not set."
+    exit 1
+fi
+
+if [ "${3:-}" = "" ]; then
+    echo "Usage: $0 [fileId] [format] [export path]"
+    exit 1
+fi
+
+FILE=$1
+TYPE=$2
+TARGET=$3
+
+CURRENT=""
+if [ -e ${TARGET}.ts ]; then
+    CURRENT=$(cat ${TARGET}.ts)
+fi
+
+MODIFIED=$(curl -s "https://www.googleapis.com/drive/v3/files/${FILE}?key=${GDRIVE_TOKEN}&fields=modifiedTime" | jq -r .modifiedTime)
+
+if [ ! "$CURRENT" = "$MODIFIED" ]; then
+    mkdir -p $(dirname $TARGET)
+    wget -q -O ${TARGET} "https://docs.google.com/spreadsheets/d/${FILE}/export?format=${TYPE}"
+    echo -n "$MODIFIED" > ${TARGET}.ts
+fi

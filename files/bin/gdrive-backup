@@ -26,6 +26,6 @@ MODIFIED=$(curl -s "https://www.googleapis.com/drive/v3/files/${FILE}?key=${GDRI
 
 if [ ! "$CURRENT" = "$MODIFIED" ]; then
     mkdir -p $(dirname $TARGET)
-    wget -q -O ${TARGET} "https://docs.google.com/spreadsheets/d/${FILE}/export?format=${TYPE}"
+    wget -q -O ${TARGET} "https://www.googleapis.com/drive/v3/files/${FILE}/export?key=${GDRIVE_TOKEN}&mimeType=${TYPE}"
     echo -n "$MODIFIED" > ${TARGET}.ts
 fi
